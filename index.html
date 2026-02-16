@@ -15,6 +15,7 @@
             font-family: 'Lato', sans-serif;
             line-height: 1.8;
             padding: 20px;
+            overflow-x: hidden; /* Prevents scrolling bugs during animation */
         }
 
         h1, h2, h3 {
@@ -31,7 +32,7 @@
             margin: 0 auto;
         }
 
-        /* --- THE HERO PHOTO (For the 1 pic of him) --- */
+        /* --- THE HERO PHOTO --- */
         .hero-section {
             background: #ffffff;
             padding: 40px;
@@ -45,7 +46,7 @@
         .his-photo {
             width: 250px;
             height: 250px;
-            border-radius: 50%; /* Makes the photo a perfect circle */
+            border-radius: 50%;
             object-fit: cover;
             border: 8px solid #fae8eb;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
@@ -53,7 +54,38 @@
             display: block;
         }
 
-        /* --- POLAROID GALLERY (For your photos) --- */
+        /* --- MUSIC SECTION --- */
+        .music-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .play-button {
+            background-color: #90323d;
+            color: #fdf5f6;
+            border: none;
+            padding: 15px 30px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            background-color: #7a2a33;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(144, 50, 61, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(144, 50, 61, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(144, 50, 61, 0); }
+        }
+
+        /* --- POLAROID GALLERY --- */
         .gallery-title {
             margin-top: 50px;
             margin-bottom: 20px;
@@ -75,6 +107,7 @@
             transition: transform 0.3s ease;
             width: 200px;
             text-align: center;
+            opacity: 0; /* Hidden before animation */
         }
 
         .polaroid img {
@@ -92,15 +125,38 @@
             font-style: italic;
         }
 
-        /* Adding a slight messy, realistic tilt to the polaroids */
-        .polaroid:nth-child(odd) { transform: rotate(-3deg); }
-        .polaroid:nth-child(even) { transform: rotate(4deg); }
-        .polaroid:nth-child(3n) { transform: rotate(-2deg); }
+        /* --- SMOOTH ERUPTION ANIMATION --- */
+        /* They start tiny and high up (the 'singular point'), then bloom outward to their spots */
+        @keyframes smoothBloom {
+            0% {
+                opacity: 0;
+                transform: translate(0, -150px) scale(0); 
+            }
+            100% {
+                opacity: 1;
+                transform: translate(0, 0) scale(1) rotate(var(--final-rot));
+            }
+        }
+
+        /* Setting the specific tilts and staggering the animation so they pop out one by one */
+        .polaroid:nth-child(1) { 
+            --final-rot: -3deg; 
+            animation: smoothBloom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.2s forwards; 
+        }
+        .polaroid:nth-child(2) { 
+            --final-rot: 4deg; 
+            animation: smoothBloom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s forwards; 
+        }
+        .polaroid:nth-child(3) { 
+            --final-rot: -2deg; 
+            animation: smoothBloom 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.8s forwards; 
+        }
         
         .polaroid:hover {
-            transform: scale(1.05) rotate(0deg);
+            transform: scale(1.1) rotate(0deg) !important;
             z-index: 10;
             position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -119,6 +175,14 @@
             <p>Every single day since you got here has been my favorite adventure. You bring so much joy into my life, and I am so lucky to call you mine.</p>
         </div>
 
+        <div class="music-container">
+            <audio id="bg-music" loop>
+                
+                <source src="/WhatsApp Audio 2026-02-16 at 21.58.51.mpeg" type="audio/mpeg">
+                
+            </audio>
+            <button id="play-button" class="play-button">🎵 Click here to play our song 🎵</button>
+        </div>
         <h2 class="gallery-title">The Girl Who Is Crazy About You</h2>
         <p style="text-align: center;">Just a few reminders of the face that lights up every time you enter the room.</p>
         
@@ -137,11 +201,27 @@
                 <img src="/WhatsApp Image 2026-02-15 at 16.56.41.jpeg" alt="Me">
                 <p>Yours, always</p>
             </div>
-            
-            </div>
+        </div>
 
     </div>
 
-</body>
+    <script>
+        const music = document.getElementById('bg-music');
+        const playBtn = document.getElementById('play-button');
+        let isPlaying = false;
 
+        playBtn.addEventListener('click', function() {
+            if (isPlaying) {
+                music.pause();
+                playBtn.innerHTML = "🎵 Click here to play our song 🎵";
+                playBtn.style.animation = "pulse 2s infinite"; // Turns pulsing back on
+            } else {
+                music.play();
+                playBtn.innerHTML = "⏸️ Pause song ⏸️";
+                playBtn.style.animation = "none"; // Stops pulsing when playing
+            }
+            isPlaying = !isPlaying;
+        });
+    </script>
+</body>
 </html>
